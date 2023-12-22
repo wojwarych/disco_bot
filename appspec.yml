@@ -23,13 +23,13 @@ permissions:
       - file
 hooks:
   AfterInstall:
-    - location: discord_bot/scripts/install_dependencies.sh
+    - location: /home/ubuntu/discord_bot/scripts/install_dependencies.sh
       runas: root
   ApplicationStart:
-    - location: discord_bot/scripts/start_bot.sh
+    - location: /home/ubuntu/discord_bot/scripts/start_bot.sh
       timeout: 300
       runas: root
   AfterInstall:
-    - location: discord_bot/scripts/stop_bot.sh
+    - location: /home/ubuntu/discord_bot/scripts/stop_bot.sh
       timeout: 300
       runas: root
