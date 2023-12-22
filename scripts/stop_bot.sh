@@ -1,2 +1,7 @@
 #!/usr/bin/env bash
-kill $(pgrep -f 'python src/main.py')
+PROC=$(pgrep -f 'python src/main.py')
+
+if [ ! -z "$PROC" ]
+then
+  kill ${PROC}
+fi
