@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd /home/ubuntu/
+cd /home/ubuntu/disco_bot
 
 .venv/bin/activate
 
