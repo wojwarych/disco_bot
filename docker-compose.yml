@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: 'python src/main.py'
+    volumes:
+      - ./src:/app/src
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
