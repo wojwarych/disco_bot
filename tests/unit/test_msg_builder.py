@@ -3,7 +3,7 @@ from unittest.mock import Mock
 from hypothesis import given
 from hypothesis import strategies as st
 
-from src.msg_builder import MsgBuilder
+from disco_bot.msg_builder import MsgBuilder
 
 
 @given(st.text())
