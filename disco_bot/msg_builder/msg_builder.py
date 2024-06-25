@@ -1,11 +1,7 @@
-import logging
-
 import discord
 
-logger = logging.getLogger(__name__)
 
-
-class MsgBuilder:
+class MsgBuilder:  # pylint: disable=too-few-public-methods
 
     def __init__(self, message: discord.Message) -> None:
         self.msg = message
