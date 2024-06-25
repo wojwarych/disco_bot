@@ -8,8 +8,8 @@ import discord
 from discord.ext.commands import Bot
 from dotenv import load_dotenv
 
-from msg_builder import MsgBuilder
-from scheduler import PapajScheduler
+from .msg_builder import MsgBuilder
+from .scheduler import PapajScheduler
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -47,7 +47,7 @@ async def bless(ctx):
     await ctx.send(msg_builder.bless())
 
 
-async def main(bot):
+async def main(bot):  # pylint: disable=redefined-outer-name
     async with bot:
         await bot.add_cog(PapajScheduler(bot, BARKA_CHANNEL_ID))
         await bot.start(TOKEN)

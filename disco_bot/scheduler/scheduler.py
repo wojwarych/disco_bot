@@ -21,8 +21,8 @@ stream_handler.setFormatter(stream_format)
 logger.addHandler(stream_handler)
 
 load_dotenv()
-BARKA_HOUR = int(os.getenv("BARKA_HOUR", 14))
-BARKA_MINUTE = int(os.getenv("BARKA_MINUTE", 37))
+BARKA_HOUR = int(os.getenv("BARKA_HOUR", "21"))
+BARKA_MINUTE = int(os.getenv("BARKA_MINUTE", "37"))
 
 time = datetime.time(
     hour=BARKA_HOUR, minute=BARKA_MINUTE, tzinfo=ZoneInfo("Europe/Warsaw")
@@ -35,13 +35,13 @@ class PapajScheduler(commands.Cog):
         self.channel_id = channel_id
         self.papaj_task.start()
 
-    def cog_unload(self):
+    async def cog_unload(self):
         self.papaj_task.cancel()
 
     @tasks.loop(time=time)
     async def papaj_task(self):
         message_channel = self.bot.get_channel(self.channel_id)
-        with open("./src/papaj.txt", "r") as f:
+        with open("./src/papaj.txt", "r", encoding="utf-8") as f:
             for line in f:
                 await message_channel.send(line)
                 await asyncio.sleep(3)
