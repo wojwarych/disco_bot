@@ -21,11 +21,10 @@ COPY ../poetry.lock ../pyproject.toml .
 FROM base AS dev
 COPY --from=base /app /app
 RUN poetry install --no-interaction --no-cache
-COPY ./src ./src/
+COPY ./disco_bot ./disco_bot/
 
 FROM base AS prod
 COPY --from=base /app /app
 RUN poetry install --no-interaction --no-cache --without dev
-COPY ./src/ ./src/
-
-CMD ["poetry", "run", "python", "src/main.py"]
+COPY ./disco_bot/ ./disco_bot/
+CMD ["poetry", "run", "python", "-m", "disco_bot.main"]

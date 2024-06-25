@@ -1,14 +1,12 @@
 name: disco_bot
 
-version: '3.8'
-
 services:
   bot:
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
       target: dev
-    command: 'poetry run python src/main.py'
+    command: 'poetry run python -m disco_bot.main'
     volumes:
-      - ../src:/app/src
+      - ../disco_bot:/app/disco_bot
     env_file: ../.env
