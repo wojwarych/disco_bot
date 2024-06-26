@@ -123,14 +123,7 @@ async def dodej(ctx, *, args):
 
 async def main(bot):  # pylint: disable=redefined-outer-name
     async with bot:
-        await bot.add_cog(
-            PapajScheduler(
-                bot,
-                BARKA_CHANNEL_ID,
-                BucketStorage(),
-                MsgBuilder(),
-            )
-        )
+        await bot.add_cog(PapajScheduler(bot, BARKA_CHANNEL_ID))
         await bot.start(TOKEN)
 
 
