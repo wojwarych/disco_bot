@@ -12,7 +12,7 @@ import discord
 from discord.ext.commands import Bot
 from dotenv import load_dotenv
 
-from .kremufczan import BucketStorage
+from .kremufczan import BucketStorage, QuotesStorageInterface
 from .msg_builder import MsgBuilder
 from .scheduler import PapajScheduler
 
@@ -51,9 +51,13 @@ class Singleton(type):
 
 
 class SetupStorage(metaclass=Singleton):
-    def __init__(self, storage_client: BucketStorage) -> None:
+    def __init__(self, storage_client: QuotesStorageInterface) -> None:
         self.storage_client = storage_client
-        self.command_executed = False
+        self._command_executed = False
+
+    @property
+    def command_executed(self) -> bool:
+        return self._command_executed
 
     def run_command(self, bucket_name: str, key: str) -> dict[str, str]:
         logger.info(bucket_name)
@@ -62,7 +66,7 @@ class SetupStorage(metaclass=Singleton):
         return {"Message": "Completed"}
 
     def finished(self) -> None:
-        self.command_executed = self.command_executed or True
+        self._command_executed = self._command_executed or True
 
     @contextmanager
     def start_process(self) -> Iterator[SetupStorage]:
