@@ -6,6 +6,59 @@ import boto3
 from .interface import QuotesStorageInterface
 
 
+class BucketNotFoundError(Exception): ...
+
+
+class BucketAlreadyExistsError(Exception): ...
+
+
+class ObjectNotFoundError(Exception): ...
+
+
+class MockBucketStorage(QuotesStorageInterface):
+    def __init__(self, data: dict[str, list[dict[str, Any]]] | None = None) -> None:
+        if not data:
+            self.data = {}
+        else:
+            self.data = data
+
+    def get_object(self, bucket_name: str, key: str) -> dict[str, Any]:
+        if bucket_name not in self.data:
+            raise BucketNotFoundError(f"Bucket '{bucket_name}' not found!")
+        ret = next((obj for obj in self.data[bucket_name] if key in obj), None)
+        if not ret:
+            raise ObjectNotFoundError(f"Object with key '{key}' not found!")
+        return ret
+
+    def create_bucket(self, bucket_name: str) -> dict[str, str]:
+        if bucket_name not in self.data:
+            self.data[bucket_name] = []
+            return {"Location": bucket_name}
+        raise BucketAlreadyExistsError(f"Bucket '{bucket_name}' already exists!")
+
+    def init_object(self, bucket_name: str, key: str) -> dict[str, Any]:
+        try:
+            self.get_object(bucket_name, key)
+        except BucketNotFoundError as e:
+            raise e
+        except ObjectNotFoundError:
+            self.data[bucket_name].append({key: {}})
+            return {"Message": "Created"}
+        else:
+            return {"Message": "Couldn't init object"}
+
+    def add_quote_to_object(self, bucket_name: str, key: str, quote) -> dict[str, Any]:
+        try:
+            curr_data = self.get_object(bucket_name, key)
+        except (BucketNotFoundError, ObjectNotFoundError) as e:
+            raise e
+        data = curr_data["Body"]
+        new = f"{data}{quote}\n"
+        data = new
+        print(self.data)
+        return {}
+
+
 class BucketStorage(QuotesStorageInterface):
     def __init__(self) -> None:
         self.s3_client = boto3.client(
