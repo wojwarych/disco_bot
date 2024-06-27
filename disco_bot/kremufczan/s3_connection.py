@@ -70,7 +70,12 @@ class BucketStorage(QuotesStorageInterface):
         )
 
     def get_object(self, bucket_name: str, key: str) -> dict[str, Any]:
-        return self.s3_client.get_object(Bucket=bucket_name, Key=key)
+        try:
+            return self.s3_client.get_object(Bucket=bucket_name, Key=key)
+        except self.s3_client.exceptions.NoSuchBucket as e:
+            raise BucketNotFoundError(f"Bucket '{bucket_name}' not found!") from e
+        except self.s3_client.exceptions.NoSuchKey as e:
+            raise ObjectNotFoundError(f"Object with key '{key}' not found!") from e
 
     def init_object(self, bucket_name: str, key: str) -> dict[str, Any]:
         try:
@@ -87,17 +92,23 @@ class BucketStorage(QuotesStorageInterface):
                     "LocationConstraint": os.getenv("AWS_REGION_NAME")
                 },
             )
-        except self.s3_client.exceptions.BucketAlreadyExists:
-            return {"Message": "Bucket Already Exists!"}
-        except self.s3_client.exceptions.BucketAlreadyOwnedByYou:
-            return {"Message": "Bucket Already Owned By You!"}
+        except self.s3_client.exceptions.BucketAlreadyExists as exc:
+            raise BucketAlreadyExistsError(
+                f"Bucket '{bucket_name}' already exists!"
+            ) from exc
+        except self.s3_client.exceptions.BucketAlreadyOwnedByYou as exc:
+            raise BucketAlreadyExistsError(
+                f"Bucket '{bucket_name}' already owned by you!"
+            ) from exc
 
     def add_quote_to_object(
         self, bucket_name: str, key: str, quote: str
     ) -> dict[str, Any]:
         try:
             curr_file = self.get_object(bucket_name, key)
-        except self.s3_client.exceptions.NoSuchKey as e:
+        except BucketNotFoundError as e:
+            raise e
+        except ObjectNotFoundError as e:
             raise e
         data = curr_file["Body"].read().decode("utf-8")
         new = f"{data}{quote}\n"
