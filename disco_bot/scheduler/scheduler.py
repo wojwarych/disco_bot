@@ -41,7 +41,7 @@ class PapajScheduler(commands.Cog):
     @tasks.loop(time=time)
     async def papaj_task(self):
         message_channel = self.bot.get_channel(self.channel_id)
-        with open("./src/papaj.txt", "r", encoding="utf-8") as f:
+        with open("./disco_bot/papaj.txt", "r", encoding="utf-8") as f:
             for line in f:
                 await message_channel.send(line)
                 await asyncio.sleep(3)
