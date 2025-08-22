@@ -1,30 +1,40 @@
-FROM python:3.10.13-slim-bookworm AS base
-
-ENV PYTHONBUFFERED=1
-ENV POETRY_VERSION=1.8.3
-ENV POETRY_HOME=/opt/poetry
-ENV POETRY_VENV=/opt/poetry-venv
-ENV POETRY_CACHE_DIR=/opt/.cache
-
-RUN apt-get update \
-    && apt-get upgrade -y
-RUN python3 -m venv $POETRY_VENV \
-    && $POETRY_VENV/bin/pip install -U pip setuptools \
-		&& $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
-
-ENV PATH="${PATH}:${POETRY_VENV}/bin"
+FROM astral/uv:python3.10-bookworm AS base
 
 WORKDIR /app
+COPY ../uv.lock ../pyproject.toml ../README.md /app/
 
-COPY ../poetry.lock ../pyproject.toml .
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
+ENV UV_TOOL_BIN_DIR=/usr/local/bin
+ENV UV_PYTHON_DOWNLOADS=0
+
+RUN apt-get update \
+    && apt-get upgrade --no-install-recommends -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 FROM base AS dev
-COPY --from=base /app /app
-RUN poetry install --no-interaction --no-cache
+COPY --from=base --chown=app:app /app /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project
 COPY ./disco_bot ./disco_bot/
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked
 
 FROM base AS prod
-COPY --from=base /app /app
-RUN poetry install --no-interaction --no-cache --without dev
+COPY --from=dev --chown=app:app /app /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=../uv.lock,target=uv.lock \
+    --mount=type=bind,source=../pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project --no-dev
 COPY ./disco_bot/ ./disco_bot/
-CMD ["poetry", "run", "python", "-m", "disco_bot.main"]
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-dev
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+ENTRYPOINT []
+
+CMD ["python", "-m", "disco_bot.main"]
