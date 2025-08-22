@@ -5,8 +5,8 @@ services:
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
-      target: dev
-    command: 'poetry run python -m disco_bot.main'
+        # target: dev
+    command: 'python -m disco_bot.main'
     volumes:
       - ../disco_bot:/app/disco_bot
     env_file: ../.env
