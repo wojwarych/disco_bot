@@ -12,6 +12,7 @@ import discord
 from discord.ext.commands import Bot
 from dotenv import load_dotenv
 
+from disco_bot.ai_agent.ai_agent import invoke_chat
 from disco_bot.kremufczan import (
     BucketAlreadyExistsError,
     BucketStorage,
@@ -85,6 +86,15 @@ class SetupStorage(metaclass=Singleton):
 
 
 bot = Bot(command_prefix="$", intents=discord.Intents.all())
+
+
+@bot.event
+async def on_message(message):
+    if not message.author.bot and bot.user.mentioned_in(message):
+        ret = invoke_chat(message)
+        await message.channel.send(ret)
+    else:
+        await bot.process_commands(message)
 
 
 @bot.event

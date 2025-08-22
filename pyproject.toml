@@ -10,6 +10,8 @@ dependencies = [
     "discord>=2.3.2,<3",
     "python-dotenv>=1.0.0,<2",
     "boto3>=1.34.132,<2",
+    "langchain>=0.3.27",
+    "langchain-mistralai>=0.2.11",
 ]
 
 [project.scripts]
