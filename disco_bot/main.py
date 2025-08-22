@@ -12,9 +12,13 @@ import discord
 from discord.ext.commands import Bot
 from dotenv import load_dotenv
 
-from .kremufczan import BucketStorage, QuotesStorageInterface
-from .msg_builder import MsgBuilder
-from .scheduler import PapajScheduler
+from disco_bot.kremufczan import (
+    BucketAlreadyExistsError,
+    BucketStorage,
+    QuotesStorageInterface,
+)
+from disco_bot.msg_builder import EmptyQuotesFile, MsgBuilder
+from disco_bot.scheduler import PapajScheduler
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -59,11 +63,15 @@ class SetupStorage(metaclass=Singleton):
     def command_executed(self) -> bool:
         return self._command_executed
 
-    def run_command(self, bucket_name: str, key: str) -> dict[str, str]:
+    def run_command(self, bucket_name: str, key: str) -> None:
         logger.info(bucket_name)
-        self.storage_client.create_bucket(bucket_name=bucket_name)
-        self.storage_client.init_object(bucket_name, key)
-        return {"Message": "Completed"}
+        try:
+            ret = self.storage_client.create_bucket(bucket_name=bucket_name)
+            logger.debug("Created bucket: %s", ret)
+            ret_msg = self.storage_client.init_object(bucket_name, key)
+            logger.info(ret_msg)
+        except BucketAlreadyExistsError as e:
+            logger.error(e)
 
     def finished(self) -> None:
         self._command_executed = self._command_executed or True
@@ -111,9 +119,15 @@ async def kremufka(ctx): ...  # pylint: disable=unused-argument
 async def dej(ctx):
     storage = BucketStorage()
     guild_name = ctx.guild.name.replace(" ", "-").lower()
-    ret = storage.get_object(guild_name, QUOTES_FILE_KEYNAME)
-    msg_builder = MsgBuilder()
-    await ctx.send(msg_builder.kremufka(ret))
+    try:
+        ret = storage.get_object(guild_name, QUOTES_FILE_KEYNAME)
+        msg_builder = MsgBuilder()
+        await ctx.send(msg_builder.kremufka(ret))
+    except EmptyQuotesFile as e:
+        logger.error(e)
+        await ctx.send(
+            "Na rany Chrystusa! Nie mam co Ci powiedzieć! Dodaj jakiś cytat komendą $kremufka dodej <cytat> ku chwale Pana Boga!"
+        )
 
 
 @kremufka.command(name="dodej")
