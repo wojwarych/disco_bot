@@ -15,7 +15,6 @@ from dotenv import load_dotenv
 from disco_bot.ai_agent.ai_agent import invoke_chat
 from disco_bot.kremufczan import (
     BucketAlreadyExistsError,
-    BucketStorage,
     QuotesStorageInterface,
     TXTStorage,
 )
@@ -128,7 +127,7 @@ async def kremufka(ctx): ...  # pylint: disable=unused-argument
 
 @kremufka.command(name="dej")
 async def dej(ctx):
-    storage = BucketStorage()
+    storage = TXTStorage()
     guild_name = ctx.guild.name.replace(" ", "-").lower()
     try:
         ret = storage.get_object(guild_name, QUOTES_FILE_KEYNAME)
