@@ -17,6 +17,7 @@ from disco_bot.kremufczan import (
     BucketAlreadyExistsError,
     BucketStorage,
     QuotesStorageInterface,
+    TXTStorage,
 )
 from disco_bot.msg_builder import EmptyQuotesFile, MsgBuilder
 from disco_bot.scheduler import PapajScheduler
@@ -101,7 +102,7 @@ async def on_message(message):
 async def on_ready():
     logger.info("Connected!")
     logger.info("Performing Storage Check and creation...")
-    storage_client = BucketStorage()
+    storage_client = TXTStorage()
     storage_setup = SetupStorage(storage_client=storage_client)
     guilds = sanitize_guild_names(bot)
     with storage_setup.start_process() as st_proc:
