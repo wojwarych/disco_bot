@@ -143,7 +143,7 @@ async def dej(ctx):
 
 @kremufka.command(name="dodej")
 async def dodej(ctx, *, args):
-    storage = BucketStorage()
+    storage = TXTStorage()
     guild_name = ctx.guild.name.replace(" ", "-").lower()
     ret = storage.add_quote_to_object(guild_name, QUOTES_FILE_KEYNAME, args)
     logger.info(ret)
