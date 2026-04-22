@@ -13,6 +13,7 @@ class MsgBuilder:  # pylint: disable=too-few-public-methods
 
     def kremufka(self, quote_body: dict[str, Any]) -> str:
         try:
-            return random.choice(quote_body["Body"].readlines()).decode("utf-8").strip()
+            text = quote_body["Body"].read_text(encoding="utf-8").split("\n")
+            return random.choice(text)
         except IndexError as e:
             raise EmptyQuotesFile("Resource for quotes is empty!") from e
