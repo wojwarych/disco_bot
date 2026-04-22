@@ -9,7 +9,7 @@ class TXTStorage(QuotesStorageInterface):
     def __init__(self) -> None:
         try:
             path_dir = Path("~/.local/share/disco_bot/")
-            path_dir.mkdir(mode=0o640, parents=False, exist_ok=False)
+            path_dir.mkdir(mode=0o640, parents=True, exist_ok=False)
         except FileExistsError:
             pass
 
