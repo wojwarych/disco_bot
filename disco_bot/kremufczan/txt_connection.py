@@ -8,14 +8,14 @@ from .s3_connection import BucketAlreadyExistsError, ObjectNotFoundError
 class TXTStorage(QuotesStorageInterface):
     def __init__(self) -> None:
         try:
-            path_dir = Path("~/.local/share/disco_bot/")
+            path_dir = Path(".local/share/disco_bot/")
             path_dir.mkdir(mode=0o640, parents=True, exist_ok=False)
         except FileExistsError:
             pass
 
     def init_object(self, bucket_name: str, key: str) -> dict[str, Any]:
         try:
-            path_dir = Path(f"~/.local/share/disco_bot/{bucket_name}")
+            path_dir = Path(f".local/share/disco_bot/{bucket_name}")
             txt_file = path_dir / key
             txt_file.touch(mode=0o644, exist_ok=False)
         except FileExistsError:
@@ -26,7 +26,7 @@ class TXTStorage(QuotesStorageInterface):
 
     def get_object(self, bucket_name: str, key: str) -> dict[str, Any]:
         try:
-            path = Path(f"~/.local/share/disco_bot/{bucket_name}/{key}")
+            path = Path(f".local/share/disco_bot/{bucket_name}/{key}")
             path.stat()
             return {"Body": path}
         except FileNotFoundError as e:
@@ -34,7 +34,7 @@ class TXTStorage(QuotesStorageInterface):
 
     def create_bucket(self, bucket_name: str) -> dict[str, str]:
         try:
-            p = Path(f"~/.local/share/disco_bot/{bucket_name}")
+            p = Path(f".local/share/disco_bot/{bucket_name}")
             p.mkdir(mode=0o644)
         except FileExistsError as exc:
             raise BucketAlreadyExistsError(
